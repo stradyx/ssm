@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.strady.ssm.dao.OrderDao">
+
+    <resultMap id="orderUser" type="com.strady.ssm.entity.OrderUser">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="uid" property="uid"/>
+        <result column="create_time" property="createTime"/>
+        <association property="user" javaType="com.strady.ssm.entity.User">
+            <id column="user_id" property="id"/>
+            <result column="user_name" property="userName"/>
+            <result column="mobile" property="mobile"/>
+            <result column="create_time" property="createTime"/>
+            <result column="password" property="password"/>
+        </association>
+    </resultMap>
+
+    <!-- 根据订单id查找订单信息和用户信息 -->
+    <select id="findOrderUserById" parameterType="String" resultMap="orderUser">
+		select
+		    o.id,
+		    o.order_no,
+		    o.uid,
+		    o.create_time,
+		    u.id user_id,
+		    u.user_name,
+		    u.mobile,
+		    u.create_time,
+		    u.password
+		from orders o
+		inner join user u on o.uid=u.id
+		where o.id = #{orderId}
+	</select>
+
+</mapper>

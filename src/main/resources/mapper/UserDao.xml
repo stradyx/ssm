@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.strady.ssm.dao.UserDao">
+    <resultMap id="userMap" type="com.strady.ssm.entity.User">
+        <id column="id" property="id"/>
+        <result column="user_name" property="userName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="password" property="password"/>
+    </resultMap>
+
+    <!-- 根据id获取用户信息 -->
+    <select id="findUserById" parameterType="String" resultType="com.strady.ssm.entity.User">
+		select id,user_name userName,password,mobile,create_time createTime
+		from user where id = #{id}
+	</select>
+
+    <select id="findUserByIdMap" parameterType="String" resultMap="userMap">
+        select id,user_name,password,mobile,create_time from user
+        <where>
+            <if test="id!=null">
+                id=#{id}
+            </if>
+        </where>
+    </select>
+
+    <!--根据name模糊查询userName-->
+    <select id="findUserByName" parameterType="String" resultType="com.strady.ssm.entity.User">
+        select id,user_name userName,password,mobile,create_time createTime
+        from user where nick_name like '%${userName}%'
+    </select>
+
+    <!--插入用户-->
+    <insert id="insertUser" parameterType="com.strady.ssm.entity.User">
+        insert into user(id,user_name,password,salt,mobile,create_time) value
+        (#{id},#{userName},#{password},salt,#{mobile},#{createTime})
+    </insert>
+
+    <!--使用uuid当做主键-->
+    <insert id="insertUser2" parameterType="com.strady.ssm.entity.User">
+        <selectKey resultType="String" order="BEFORE" keyProperty="id">
+            select uuid()
+        </selectKey>
+        insert into user(id,user_name,password,salt,mobile,create_time) value
+        (#{id},#{userName},#{password},salt,#{mobile},#{createTime})
+    </insert>
+
+    <!--根据id删除用户-->
+    <delete id="deleteUser" parameterType="String">
+        delete from user where id=#{id}
+    </delete>
+
+    <update id="updateUser" parameterType="com.strady.ssm.entity.User">
+        update user set
+        <if test="userName!=null">
+            user_name=#{userName},
+        </if>
+        <if test="password!=null">
+            mobile=#{mobile}
+        </if>
+        where id=#{id}
+    </update>
+
+    <resultMap id="userOrders" type="com.strady.ssm.entity.UserOrders">
+        <id column="id" property="id"/>
+        <result column="user_name" property="userName"/>
+        <result column="mobile" property="mobile"/>
+        <collection property="orders" ofType="com.strady.ssm.entity.Orders">
+            <id column="order_id" property="id"/>
+            <result column="order_no" property="orderNo"/>
+            <result column="uid" property="uid"/>
+            <result column="create_time" property="createTime"/>
+        </collection>
+    </resultMap>
+
+    <select id="findUserOrdersById" parameterType="String" resultMap="userOrders">
+      select
+		    u.id,
+		    u.user_name,
+		    u.mobile,
+		    o.id order_id,
+		    o.order_no,
+		    o.uid,
+		    o.create_time
+		from user u
+		inner join orders o on u.id=o.uid
+		where u.id = #{id}
+    </select>
+
+
+</mapper>
